@@ -1,0 +1,338 @@
+---
+alwaysApply: true
+---
+# Generate Base PRP Template Rule
+
+## Purpose
+
+This rule generates technology-specific base PRP templates (`prp-base-{tech}.json`) from `INITIAL.md` files. It loads the canonical template and overlays tech-specific content.
+
+## Core Workflow
+
+**Input**: `PRPs/INITIAL.md` with project context (+ Project Name)
+**Output (Local)**: `PRPs/templates/prp-base-{tech}.json` (technology-specific base PRP as JSON)
+**Method**: Load canonical template + overlay tech-specific content + write local JSON file
+**Note**: This rule does NOT create Archon documents - it only generates local base templates
+
+## Technology Detection Logic
+
+### 1. Framework Detection
+**Scan for mentions of:**
+- **Frontend**: React, Next.js, Vue, Svelte, Remix, Angular
+- **Backend**: FastAPI, Express, Django, Flask, Spring, .NET
+- **Mobile**: React Native, Flutter, Swift, Kotlin
+- **CLI**: Click, Typer, Commander, argparse, clap
+- **Database**: PostgreSQL, MongoDB, Redis, SQLite, Prisma, Drizzle
+
+### 2. Documentation URL Detection
+**Extract tech from URLs:**
+- `supabase.com/docs` → Supabase
+- `nextjs.org/docs` → Next.js
+- `docs.python.org` → Python
+- `docs.rs` → Rust
+- `developer.mozilla.org` → Web technologies
+
+### 3. File Path Pattern Detection
+**Infer tech from examples:**
+- `app/page.tsx` → Next.js App Router
+- `src/main.rs` → Rust
+- `src/main.py` → Python
+- `src/App.jsx` → React
+- `src/components/` → Component-based framework
+
+## Template Structure
+
+### Layer 1: Universal (Always Included)
+
+#### 4-Level Validation Loop
+```markdown
+## Validation Loop
+
+### Level 1: Syntax & Style
+- [ ] Ruff linting and formatting
+- [ ] MyPy type checking (if applicable)
+- [ ] ESLint/Prettier (if applicable)
+- [ ] Zero errors before proceeding
+
+### Level 2: Unit Tests
+- [ ] Test each component as created
+- [ ] Follow existing test patterns
+- [ ] Full coverage of public methods
+- [ ] Mock external dependencies
+
+### Level 3: Integration Testing
+- [ ] Service startup validation
+- [ ] Endpoint testing
+- [ ] Database connectivity
+- [ ] MCP tool validation
+- [ ] Cross-component communication
+
+### Level 4: Creative Validation
+- [ ] Domain-specific testing
+- [ ] Performance validation
+- [ ] Security scanning
+- [ ] Load testing if applicable
+- [ ] User experience validation
+```
+
+#### Patterns and Gotchas
+```markdown
+## Patterns and Gotchas
+
+### Common Patterns
+- [Pattern description with file path reference]
+- [Implementation example]
+- [When to use this pattern]
+
+### Known Gotchas
+- [Common pitfall description]
+- [Why it happens]
+- [How to avoid it]
+- [Alternative approaches]
+```
+
+#### Anti-Patterns
+```markdown
+## Anti-Patterns to Avoid
+
+### ❌ Never Do This
+- [Anti-pattern description]
+- [Why it's problematic]
+- [What to do instead]
+
+### ❌ Common Mistakes
+- [Mistake description]
+- [Impact on system]
+- [Correct approach]
+```
+
+### Layer 2: Archon-Specific
+
+#### Project Structure Templates
+```markdown
+## Desired Codebase Tree with Files to Add
+
+### Current State
+```
+[Current file tree from INITIAL.md analysis]
+```
+
+### Target State
+```
+[Desired file tree with new files highlighted]
+```
+
+### File Naming Conventions
+- **Models**: `snake_case` for Python, `PascalCase` for TypeScript
+- **Services**: `snake_case` for Python, `camelCase` for TypeScript
+- **Components**: `PascalCase` for React/Vue components
+- **Utilities**: `snake_case` for Python, `camelCase` for TypeScript
+- **Tests**: `test_*.py` for Python, `*.test.ts` for TypeScript
+```
+
+#### Known Gotchas of Our Codebase
+```markdown
+## Known Gotchas of Our Codebase
+
+### Architecture Constraints
+- [Specific limitation or constraint]
+- [Why it exists]
+- [How to work around it]
+
+### Integration Points
+- [MCP tool integration requirement]
+- [Database connection pattern]
+- [External service integration]
+- [Error handling approach]
+```
+
+## Implementation Steps
+
+### Step 1: Resolve Project and Parse INITIAL.md
+```bash
+# Resolve project name:
+# Priority: (a) second CLI arg to this rule, (b) parse from INITIAL.md (e.g., "Project Name:"), (c) fail with instruction to supply project name
+
+# Ensure Archon project exists and capture project_id
+# 1) Try to find by title, else create
+archon:manage_project(action="list")
+#   - find project where title == {project_name}
+#   - if not found → archon:manage_project(action="create", title="{project_name}")
+#   - capture {project_id}
+
+# Analyze INITIAL.md
+archon:perform_rag_query(query="technology frameworks tools", source="INITIAL.md")
+archon:search_code_examples(query="file structure patterns", source="INITIAL.md")
+```
+
+### Step 2: Load Canonical Template
+```bash
+# Load the base template from assets/agent-kit/PRP-template/prp.template.json
+# This provides the complete schema structure
+```
+
+### Step 3: Detect Technology Stack
+```bash
+# Analyze content for technology indicators
+# Extract framework mentions, documentation URLs, file patterns
+# Determine primary technology for template naming
+```
+
+### Step 4: Overlay Tech-Specific Content
+```bash
+# Update these sections with tech-specific content:
+# - goal: Tailored to detected technology
+# - why: Technology-specific benefits
+# - what.description: Scope for the technology
+# - what.success_criteria: Tech-appropriate metrics
+# - what.user_stories: Technology-specific user scenarios
+# - context.documentation: Official docs for the technology
+# - context.gotchas: Common pitfalls for the technology
+# - context.dependencies: Core packages for the technology
+# - context.environment_variables: Tech-specific env vars
+# - implementation_blueprint: Technology-appropriate phases and tasks
+# - validation: Tech-specific lint/test/validation commands
+```
+
+### Step 5: Save Local Template
+```bash
+# Write to: PRPs/templates/prp-base-{detected_tech}.json
+# Do NOT upload to Archon - this is just a local template
+```
+
+## Tech-Specific Content Overlays
+
+### Next.js Overlay
+```json
+{
+  "goal": "Implement a production-ready Next.js application using the App Router with typed APIs, robust data fetching, and secure defaults.",
+  "why": [
+    "Leverage React Server Components for performance and simplicity",
+    "Standardize data fetching and validation across pages and routes",
+    "Ensure secure, scalable defaults aligned with Vercel/Next best practices"
+  ],
+  "context": {
+    "documentation": [
+      {"source": "https://nextjs.org/docs", "why": "Core framework guidance"},
+      {"source": "https://zod.dev/", "why": "Schema validation"}
+    ],
+    "gotchas": [
+      "Use 'use client' only when necessary",
+      "Avoid dynamic rendering where static/ISR suffices",
+      "Validate request data at the edge of route handlers with zod"
+    ],
+    "dependencies": ["next", "react", "react-dom", "zod", "@tanstack/react-query", "tailwindcss"],
+    "environment_variables": ["NEXT_PUBLIC_API_URL", "NODE_ENV"]
+  },
+  "validation": {
+    "level_1_syntax": ["pnpm lint", "pnpm type-check"],
+    "level_2_unit_tests": ["pnpm test"],
+    "level_3_integration": ["pnpm next build && pnpm next start -p 4000"],
+    "level_4_end_to_end": ["Lighthouse pass >= 90", "Basic security headers present"]
+  }
+}
+```
+
+### FastAPI Overlay
+```json
+{
+  "goal": "Deliver a FastAPI service with typed models, modular routers, and resilient HTTP clients.",
+  "why": [
+    "Fast developer feedback loops with Python typing and Pydantic",
+    "Clear separation of routers, services, and schemas",
+    "First-class async support for performance"
+  ],
+  "context": {
+    "documentation": [
+      {"source": "https://fastapi.tiangolo.com/", "why": "Framework docs"},
+      {"source": "https://docs.pydantic.dev/", "why": "Data validation"}
+    ],
+    "gotchas": [
+      "Use async def for I/O-bound endpoints",
+      "Close HTTP clients (httpx.AsyncClient) properly",
+      "Return JSON-serializable models only"
+    ],
+    "dependencies": ["fastapi", "uvicorn[standard]", "pydantic", "httpx", "pytest", "pytest-asyncio"],
+    "environment_variables": ["PORT", "DATABASE_URL", "ENV"]
+  },
+  "validation": {
+    "level_1_syntax": ["ruff check .", "mypy ."],
+    "level_2_unit_tests": ["pytest -q"],
+    "level_3_integration": ["uvicorn app.main:app --port 8000 & sleep 2 && curl -f http://localhost:8000/healthz"],
+    "level_4_end_to_end": ["ab or hey load test basic endpoints", "security scan dependencies"]
+  }
+}
+```
+
+### Express Overlay
+```json
+{
+  "goal": "Build an Express.js API with secure middleware, zod-validated routes, and modern logging.",
+  "why": [
+    "Fast baseline API with wide ecosystem support",
+    "Explicit validation and error mapping for reliability",
+    "Security headers and sane defaults from day one"
+  ],
+  "context": {
+    "documentation": [
+      {"source": "https://expressjs.com/", "why": "Framework docs"},
+      {"source": "https://github.com/colinhacks/zod", "why": "Validation"}
+    ],
+    "gotchas": [
+      "Order of middleware matters (security first)",
+      "Never trust req.body without validation",
+      "Return consistent error shape"
+    ],
+    "dependencies": ["express", "zod", "helmet", "cors", "pino", "pino-http"],
+    "environment_variables": ["PORT", "NODE_ENV", "DATABASE_URL"]
+  },
+  "validation": {
+    "level_1_syntax": ["npm run lint", "npm run type-check"],
+    "level_2_unit_tests": ["npm test"],
+    "level_3_integration": ["node dist/server.js & sleep 2 && curl -f http://localhost:${PORT:-3000}/health"],
+    "level_4_end_to_end": ["k6 or artillery quick load test", "security header scan"]
+  }
+}
+```
+
+## MCP Upload Format
+
+When ready to upload the generated base template to Archon, use this format:
+
+```json
+{
+  "tool": "manage_document",
+  "args": {
+    "action": "add",
+    "project_id": "<PROJECT_ID>",
+    "document_type": "prp",
+    "title": "Base Template - {DetectedTech}",
+    "content": {
+      // The complete generated prp-base-{tech}.json content goes here
+      "document_type": "prp",
+      "title": "Base Template - {DetectedTech}",
+      "version": "1.0",
+      "author": "prp-creator",
+      "date": "2025-08-20",
+      "status": "draft",
+      "goal": "...",
+      "why": [...],
+      "what": {...},
+      "context": {...},
+      "implementation_blueprint": {...},
+      "validation": {...}
+    },
+    "metadata": { "author": "prp-creator", "tags": ["base-template", "prp"] }
+  }
+}
+```
+
+Reference: `PRP-template/MCP-upload.example.json`
+
+## Notes
+
+- The canonical template provides the complete schema structure
+- Only overlay tech-specific content in the allowed sections
+- Keep the template as pure JSON (no markdown code blocks)
+- This generates local templates only - no Archon integration at this stage
+- For Archon upload, use the MCP format above
